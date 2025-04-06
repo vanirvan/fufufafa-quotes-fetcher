@@ -35,7 +35,7 @@ async function extractDataAndScreenshot(
 
     const extracted: Omit<ExtractedData, "doksli">[] = [];
     const contentLocator = page.locator("div.break-words.py-2.text-secondary");
-    const timeLocator = page.locator("time.text-tertiary.text-xs").first();
+    const timeLocator = page.locator("time.text-tertiary.text-xs").nth(1); // get second element (the correct fufufafa comment timestamp)
 
     const contentText = await contentLocator.innerText();
     const datetimeValue = await timeLocator.getAttribute("datetime");
@@ -228,6 +228,9 @@ async function main() {
           data: null, // Push an empty array if extraction failed
         });
       }
+
+      // Avoid navigating error
+      setTimeout(() => {}, 1000);
     }
 
     // Write the complete results to a JSON file after the loop
