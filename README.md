@@ -13,7 +13,7 @@ This repository is collecting every quotes from Fufufafa, using [playwright](htt
 
 # Disclaimer
 
-Every images and data is not mine, I just collected them from the internet. I'm not responsible for any goverment actions or any other consequences.
+Every images and data is not mine, I just collected them from the internet. I'm not responsible for any government actions or any other consequences.
 
 ## Contributing
 
