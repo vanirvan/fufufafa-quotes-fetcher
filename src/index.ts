@@ -1,5 +1,6 @@
 import { chromium, Browser, Page, Locator } from "playwright";
-import { data } from "./data.js"; // Assuming this is an array of URLs
+import { data } from "./data.js";
+// import { data as data } from "./data-3.js"; // enable this only when new data would be fetched
 import * as fs from "node:fs/promises";
 import * as path from "path"; // Import the 'path' module
 
@@ -164,6 +165,7 @@ async function main() {
       data: ExtractedData | null;
     }[] = []; // Store array of extracted data
     const loopSize = data.length;
+    const startIndex = 699; // index from the last data id (if the last data is id 699, start from 699)
 
     for (let i = 0; i < loopSize; i++) {
       const url = data[i]; // Corrected URL access
@@ -211,20 +213,23 @@ async function main() {
         });
         console.log("Blank Content Added");
 
-        const extractedData = await extractDataAndScreenshot(page, i + 1);
+        const extractedData = await extractDataAndScreenshot(
+          page,
+          i + 1 + startIndex
+        );
         results.push({
-          id: i + 1,
+          id: i + 1 + startIndex,
           data: { ...extractedData[0], doksli: url },
         });
 
-        console.log(`Extracted data from ${url} (ID: ${i + 1})`);
+        console.log(`Extracted data from ${url} (ID: ${i + 1 + startIndex})`);
       } catch (gotoError) {
         console.error(
           `Error navigating to or extracting from ${url}:`,
           gotoError
         );
         results.push({
-          id: i + 1,
+          id: i + 1 + startIndex,
           data: null, // Push an empty array if extraction failed
         });
       }
@@ -250,3 +255,37 @@ async function main() {
 
 // Run the main function
 main();
+
+// comment the main() function and run the below function if new data is added
+// this function will compare old data with new data and create a new file for new data added
+function main2() {
+  const outputFileName = "new-data.ts";
+
+  const duplicateData = data.filter((item) => data.includes(item));
+  const uniqueData = data.filter((item) => !data.includes(item));
+  console.log(`Total duplicate data: ${duplicateData.length}`);
+  console.log(`Total unique data: ${uniqueData.length}`);
+
+  // write unique data to file
+  const fileContentUnique = `// Auto generated file
+export const data: string[] = ${JSON.stringify(uniqueData, null, 2)};
+`;
+
+  const outputPath2 = path.join(process.cwd(), outputFileName);
+  fs.writeFile(outputPath2, fileContentUnique);
+
+  // write duplicate data to file, for manual checking, but i'm pretty sure it's works perfectly
+  const fileContentDuplicate = `// Auto generated file
+export const data: string[] = ${JSON.stringify(duplicateData, null, 2)};
+`;
+
+  const outputPath = path.join(process.cwd(), "duplicate-data.ts");
+  fs.writeFile(outputPath, fileContentDuplicate);
+
+  console.log(`Data has been filtered and outputed at ${outputFileName}`);
+  return 0;
+}
+
+// uncomment this to filter the file
+// comment it again after it finished
+// main2();
